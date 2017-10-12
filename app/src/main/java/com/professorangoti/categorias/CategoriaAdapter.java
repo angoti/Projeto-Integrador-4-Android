@@ -5,16 +5,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.professorangoti.categorias.domain.Categoria;
 import com.professorangoti.categorias.domain.Produto;
+import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 
-class CategoriaAdapter extends BaseAdapter {
+public class CategoriaAdapter extends BaseAdapter {
     Context ctx;
     List<Produto> lista;
 
@@ -49,9 +53,12 @@ class CategoriaAdapter extends BaseAdapter {
         //3º passo
         TextView nome = (TextView) linha.findViewById(R.id.nome);
         TextView preco = (TextView) linha.findViewById(R.id.preco);
+        ImageView imagem = (ImageView) linha.findViewById(R.id.imagem);
 
         nome.setText(produto.getNome());
-        preco.setText(produto.getPreco()+"");
+        NumberFormat nf = new DecimalFormat ("#,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
+        preco.setText("R$ "+nf.format(produto.getPreco()).toString());
+        Picasso.with(ctx).load(produto.getImagemURL()).into(imagem);
 
         return linha;
     }

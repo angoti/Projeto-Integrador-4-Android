@@ -1,9 +1,10 @@
 package com.professorangoti.categorias.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Categoria {
+public class Categoria implements Serializable {
 	private Integer id;
 	private String nome;
 	private List<Produto> produtos = new ArrayList<Produto>();
@@ -42,4 +43,8 @@ public class Categoria {
 		this.produtos = produtos;
 	}
 
+	@Override
+	public String toString() {
+		return getNome();
+	}
 }

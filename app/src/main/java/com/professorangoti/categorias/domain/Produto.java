@@ -8,12 +8,21 @@ public class Produto {
 	private String nome;
 	private Double preco;
 	private List<Categoria> categorias = new ArrayList<Categoria>();
+	private String imagemURL;
 
 	public Produto(Integer id, String nome, Double preco) {
 		super();
 		this.id = id;
 		this.nome = nome;
 		this.preco = preco;
+	}
+
+	public Produto(Integer id, String nome, Double preco, String imagemURL) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.preco = preco;
+		this.imagemURL = imagemURL;
 	}
 
 	public Produto() {
@@ -51,4 +60,11 @@ public class Produto {
 		this.categorias = categorias;
 	}
 
+	public String getImagemURL() {
+		return imagemURL;
+	}
+
+	public void setImagemURL(String imagemURL) {
+		this.imagemURL = imagemURL;
+	}
 }
