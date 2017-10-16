@@ -1,7 +1,7 @@
-package com.professorangoti.categorias;
+package com.professorangoti.projetointegrador4;
 
 
-import com.professorangoti.categorias.domain.Categoria;
+import com.professorangoti.projetointegrador4.domain.Categoria;
 
 public class Dados {
     private static Dados instanciaUnica;

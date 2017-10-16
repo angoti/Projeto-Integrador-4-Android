@@ -1,11 +1,9 @@
-package com.professorangoti.categorias.activities;
+package com.professorangoti.projetointegrador4.activities;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,24 +12,26 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.professorangoti.categorias.CategoriaAdapter;
-import com.professorangoti.categorias.Dados;
-import com.professorangoti.categorias.EndPoint;
-import com.professorangoti.categorias.R;
-import com.professorangoti.categorias.activities.Categorias;
-import com.professorangoti.categorias.domain.Categoria;
+import com.professorangoti.projetointegrador4.CategoriaAdapter;
+import com.professorangoti.projetointegrador4.EndPoint;
+import com.professorangoti.projetointegrador4.R;
+import com.professorangoti.projetointegrador4.domain.Categoria;
+import com.professorangoti.projetointegrador4.domain.Produto;
+import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
+import com.wdullaer.swipeactionadapter.SwipeDirection;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,12 +42,15 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private String baseUrl = "https://gs-sts-cloud-foundry-deployment-angoti.cfapps.io/";
-    EndPoint apiService;
-    List<Categoria> listaCategorias;
-    ListView listviewProdutos, listviewCategorias;
-    TextView texto;
-    ImageView imagem;
-    float transparencia=0.1f;
+    private EndPoint apiService;
+    private List<Categoria> listaCategorias;
+    private ListView listviewProdutos, listviewCategorias;
+    private TextView texto;
+    private ImageView imagem;
+    private float transparencia = 0.1f;
+    private Context contexto;
+    private SwipeActionAdapter mAdapter;
+    Categoria categoria;
 
     public List<Categoria> getListaCategorias() {
         return listaCategorias;
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        contexto = this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -122,11 +126,11 @@ public class MainActivity extends AppCompatActivity
             transparencia = 0.0f;
             imagem.setAlpha(transparencia);
             return true;
-        }else if (id == R.id.op2) {
+        } else if (id == R.id.op2) {
             transparencia = 0.1f;
             imagem.setAlpha(transparencia);
             return true;
-        }else if (id == R.id.op3) {
+        } else if (id == R.id.op3) {
             transparencia = 0.5f;
             imagem.setAlpha(transparencia);
             return true;
@@ -143,32 +147,32 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_cat) {
-            consultaCategorias();
+            webServiceTodasCategorias();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void consultaCategoriaId(int id) {
+    private void webServiceCategoriaPorId(int id) {
         Call<Categoria> call = apiService.getCategoria(id);
         //chamada assíncrona
         call.enqueue(new Callback<Categoria>() {
             @Override
             public void onResponse(Call<Categoria> call, Response<Categoria> response) {
                 int statusCode = response.code();
-                Categoria categoria = response.body();
+                categoria = response.body();
                 exibeDados(categoria);
             }
 
             @Override
             public void onFailure(Call<Categoria> call, Throwable t) {
-                // Log error here since request failed
+                Toast.makeText(MainActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void consultaCategorias() {
+    private void webServiceTodasCategorias() {
         if (listaCategorias != null) {
             exibeDados(listaCategorias);
             return;
@@ -185,7 +189,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onFailure(Call<List<Categoria>> call, Throwable t) {
-                // Log error here since request failed
+                Toast.makeText(MainActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -201,7 +205,9 @@ public class MainActivity extends AppCompatActivity
                 .build();
     }
 
-    private void exibeDados(Categoria categoria) { //lista todos os produtos de uma categoria
+    // Exibe na ListView todos os produtos de uma categoria
+    // linha.xml define o layout de cada linha no Listview
+    private void exibeDados(final Categoria categoria) {
         // Dados.getInstanciaUnica().setCategoria(categoria);
         // Intent i = new Intent(this, Categorias.class);
         // startActivity(i);
@@ -215,9 +221,70 @@ public class MainActivity extends AppCompatActivity
             escondeTexto();
             escondeListviewCategorias();
             mostraListviewProdutos();
-            listviewProdutos.setAdapter(new CategoriaAdapter(this, categoria.getProdutos()));
+            final List<Produto> listaProdutos = categoria.getProdutos();
+
+            // 1. Wrap the Adapter of your ListView with a SwipeActionAdapter
+            // 2. Create a background layout for each swipe direction you wish to act upon.
+            // 3. Implement the SwipeActionAdapter
+
+            // Wrap your content in a SwipeActionAdapter
+            mAdapter = new SwipeActionAdapter(new CategoriaAdapter(this, listaProdutos));
+
+            // Pass a reference of your ListView to the SwipeActionAdapter
+            mAdapter.setListView(listviewProdutos);
+
+            // Set the SwipeActionAdapter as the Adapter for your ListView
+            //setListAdapter(mAdapter);
+            listviewProdutos.setAdapter(mAdapter);
+
+            mAdapter.addBackground(SwipeDirection.DIRECTION_FAR_LEFT, R.layout.row_bg_left_far)
+                    .addBackground(SwipeDirection.DIRECTION_NORMAL_LEFT, R.layout.row_bg_left)
+                    .addBackground(SwipeDirection.DIRECTION_FAR_RIGHT, R.layout.row_bg_right_far)
+                    .addBackground(SwipeDirection.DIRECTION_NORMAL_RIGHT, R.layout.row_bg_right);
+
+            // Listen to swipes
+            mAdapter.setSwipeActionListener(
+                    new SwipeActionAdapter.SwipeActionListener() {
+                        @Override
+                        public boolean hasActions(int position, SwipeDirection direction) {
+                            return true;
+                        }
+
+                        @Override
+                        public boolean shouldDismiss(int position, SwipeDirection direction) {
+                            return true;
+                        }
+
+                        @Override
+                        public void onSwipe(int[] positionList, SwipeDirection[] directionList) {
+                            int id = listaProdutos.get(positionList[0]).getId();
+                            listaProdutos.remove(positionList[0]);
+                            mAdapter.notifyDataSetChanged();
+                            webServiceRemoveProduto(id);
+                        }
+                    }
+            );
         }
     }
+
+    private void webServiceRemoveProduto(int i) {
+        Call<ResponseBody> call = apiService.removeProduto(i);
+        //chamada assíncrona
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                int statusCode = response.code();
+                Toast.makeText(MainActivity.this, "Produto removido da base de dados: "+statusCode, Toast.LENGTH_SHORT).show();
+                webServiceCategoriaPorId(categoria.getId());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private void exibeDados(final List<Categoria> categorias) { //lista todas as categorias
         setTitle("Categorias");
@@ -228,7 +295,7 @@ public class MainActivity extends AppCompatActivity
         listviewCategorias.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int posicao, long l) {
-                consultaCategoriaId(categorias.get(posicao).getId());
+                webServiceCategoriaPorId(categorias.get(posicao).getId());
             }
         });
     }

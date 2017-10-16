@@ -1,4 +1,4 @@
-package com.professorangoti.categorias.domain;
+package com.professorangoti.projetointegrador4.domain;
 
 import java.util.ArrayList;
 import java.util.List;

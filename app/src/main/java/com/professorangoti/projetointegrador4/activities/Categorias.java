@@ -1,20 +1,19 @@
-package com.professorangoti.categorias.activities;
+package com.professorangoti.projetointegrador4.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.professorangoti.categorias.CategoriaAdapter;
-import com.professorangoti.categorias.Dados;
-import com.professorangoti.categorias.R;
-import com.professorangoti.categorias.domain.Categoria;
+import com.professorangoti.projetointegrador4.CategoriaAdapter;
+import com.professorangoti.projetointegrador4.Dados;
+import com.professorangoti.projetointegrador4.R;
+import com.professorangoti.projetointegrador4.domain.Categoria;
 
 public class Categorias extends AppCompatActivity {
 
