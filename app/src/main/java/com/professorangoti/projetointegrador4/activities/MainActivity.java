@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+        drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -80,8 +80,8 @@ public class MainActivity extends AppCompatActivity
         apiService = criaRetrofit().create(EndPoint.class);
         listviewCategorias = (ListView) findViewById(R.id.listview_categorias);
         listviewProdutos = (ListView) findViewById(R.id.listview_produtos);
-        texto = findViewById(R.id.lista_vazia);
-        imagem = findViewById(R.id.imagem);
+        texto = (TextView)findViewById(R.id.lista_vazia);
+        imagem = (ImageView)findViewById(R.id.imagem);
         escondeListviewProdutos();
         escondeListviewCategorias();
     }
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         setTitle("Sistema CatProd");
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (
