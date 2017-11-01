@@ -1,8 +1,9 @@
 package com.professorangoti.projetointegrador4.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -19,13 +20,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.professorangoti.projetointegrador4.CategoriaAdapter;
-import com.professorangoti.projetointegrador4.EndPoint;
 import com.professorangoti.projetointegrador4.R;
 import com.professorangoti.projetointegrador4.domain.Categoria;
+import com.professorangoti.projetointegrador4.domain.CategoriaAdapter;
 import com.professorangoti.projetointegrador4.domain.Produto;
+import com.professorangoti.projetointegrador4.services.RetrofitService;
 import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
 import com.wdullaer.swipeactionadapter.SwipeDirection;
 
@@ -35,30 +34,21 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private String baseUrl = "https://gs-sts-cloud-foundry-deployment-angoti.cfapps.io/";
-    private EndPoint apiService;
-    private List<Categoria> listaCategorias;
+    private Categoria categoria;
+    private static List<Categoria> listaCategorias;
+
     private ListView listviewProdutos, listviewCategorias;
     private TextView texto;
     private ImageView imagem;
+    private FloatingActionButton fab;
+
     private float transparencia = 0.1f;
     private Context contexto;
     private SwipeActionAdapter mAdapter;
-    Categoria categoria;
-
-    public List<Categoria> getListaCategorias() {
-        return listaCategorias;
-    }
-
-    public void setListaCategorias(List<Categoria> listaCategorias) {
-        this.listaCategorias = listaCategorias;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +67,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        apiService = criaRetrofit().create(EndPoint.class);
         listviewCategorias = (ListView) findViewById(R.id.listview_categorias);
         listviewProdutos = (ListView) findViewById(R.id.listview_produtos);
-        texto = (TextView)findViewById(R.id.lista_vazia);
-        imagem = (ImageView)findViewById(R.id.imagem);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        texto = (TextView) findViewById(R.id.lista_vazia);
+        imagem = (ImageView) findViewById(R.id.imagem);
+
         escondeListviewProdutos();
         escondeListviewCategorias();
     }
@@ -89,7 +80,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         setTitle("Sistema CatProd");
-        DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (
@@ -99,8 +90,10 @@ public class MainActivity extends AppCompatActivity
             mostraListviewCategorias();
             setTitle("Categorias");
             escondeTexto();
+            fab.setVisibility(View.VISIBLE);
         } else if (listviewCategorias.getVisibility() == View.VISIBLE) {
             escondeListviewCategorias();
+            fab.setVisibility(View.GONE);
             imagem.setAlpha(1f);
         } else
             super.onBackPressed();
@@ -155,9 +148,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void webServiceCategoriaPorId(int id) {
-        Call<Categoria> call = apiService.getCategoria(id);
-        //chamada assíncrona
-        call.enqueue(new Callback<Categoria>() {
+        RetrofitService.getServico().getCategoria(id).enqueue(new Callback<Categoria>() {
             @Override
             public void onResponse(Call<Categoria> call, Response<Categoria> response) {
                 int statusCode = response.code();
@@ -177,12 +168,9 @@ public class MainActivity extends AppCompatActivity
             exibeDados(listaCategorias);
             return;
         }
-        Call<List<Categoria>> call = apiService.getCategorias();
-        //chamada assíncrona
-        call.enqueue(new Callback<List<Categoria>>() {
+        RetrofitService.getServico().getCategorias().enqueue(new Callback<List<Categoria>>() {
             @Override
             public void onResponse(Call<List<Categoria>> call, Response<List<Categoria>> response) {
-                int statusCode = response.code();
                 listaCategorias = response.body();
                 exibeDados(listaCategorias);
             }
@@ -194,23 +182,34 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    @NonNull
-    private Retrofit criaRetrofit() {
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                .create();
-        return new Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+    private void webServiceRemoveProduto(int i) {
+        RetrofitService.getServico().removeProduto(i).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                int statusCode = response.code();
+                Toast.makeText(MainActivity.this, "Produto removido da base de dados: " + statusCode, Toast.LENGTH_SHORT).show();
+                webServiceCategoriaPorId(categoria.getId());
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // Exibe na ListView todos os produtos de uma categoria
     // linha.xml define o layout de cada linha no Listview
     private void exibeDados(final Categoria categoria) {
-        // Dados.getInstanciaUnica().setCategoria(categoria);
-        // Intent i = new Intent(this, Categorias.class);
-        // startActivity(i);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent novoProduto = new Intent(MainActivity.this, ProdutoForm.class);
+                startActivity(novoProduto);
+            }
+        });
+
         setTitle("Lista de produtos");
         if (categoria.getProdutos().size() == 0) {
             escondeListviewProdutos();
@@ -223,26 +222,13 @@ public class MainActivity extends AppCompatActivity
             mostraListviewProdutos();
             final List<Produto> listaProdutos = categoria.getProdutos();
 
-            // 1. Wrap the Adapter of your ListView with a SwipeActionAdapter
-            // 2. Create a background layout for each swipe direction you wish to act upon.
-            // 3. Implement the SwipeActionAdapter
-
-            // Wrap your content in a SwipeActionAdapter
             mAdapter = new SwipeActionAdapter(new CategoriaAdapter(this, listaProdutos));
-
-            // Pass a reference of your ListView to the SwipeActionAdapter
             mAdapter.setListView(listviewProdutos);
-
-            // Set the SwipeActionAdapter as the Adapter for your ListView
-            //setListAdapter(mAdapter);
             listviewProdutos.setAdapter(mAdapter);
-
             mAdapter.addBackground(SwipeDirection.DIRECTION_FAR_LEFT, R.layout.row_bg_left_far)
                     .addBackground(SwipeDirection.DIRECTION_NORMAL_LEFT, R.layout.row_bg_left)
                     .addBackground(SwipeDirection.DIRECTION_FAR_RIGHT, R.layout.row_bg_right_far)
                     .addBackground(SwipeDirection.DIRECTION_NORMAL_RIGHT, R.layout.row_bg_right);
-
-            // Listen to swipes
             mAdapter.setSwipeActionListener(
                     new SwipeActionAdapter.SwipeActionListener() {
                         @Override
@@ -267,25 +253,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void webServiceRemoveProduto(int i) {
-        Call<ResponseBody> call = apiService.removeProduto(i);
-        //chamada assíncrona
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                int statusCode = response.code();
-                Toast.makeText(MainActivity.this, "Produto removido da base de dados: "+statusCode, Toast.LENGTH_SHORT).show();
-                webServiceCategoriaPorId(categoria.getId());
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
     private void exibeDados(final List<Categoria> categorias) { //lista todas as categorias
         setTitle("Categorias");
         escondeListviewProdutos();
@@ -296,6 +263,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int posicao, long l) {
                 webServiceCategoriaPorId(categorias.get(posicao).getId());
+            }
+        });
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent novaCategoria = new Intent(MainActivity.this, CategoriaForm.class);
+                startActivity(novaCategoria);
             }
         });
     }
@@ -326,5 +302,11 @@ public class MainActivity extends AppCompatActivity
         imagem.setAlpha(transparencia);
         texto.setVisibility(View.VISIBLE);
     }
+
+    public static List<Categoria> getListaCategorias() {
+        return listaCategorias;
+    }
+
+    public static void limpaListaCategorias() {listaCategorias=null;}
 }
 

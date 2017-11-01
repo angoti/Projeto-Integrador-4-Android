@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.professorangoti.projetointegrador4.activities.MainActivity">
+    tools:context="com.professorangoti.projetointegrador4.activities.ProdutoForm">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -20,17 +20,17 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include
-        android:id="@+id/conteudo"
-        layout="@layout/content_main" />
+    <include layout="@layout/content_produto_form"
+        android:id="@+id/include" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_add_white_18dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        app:layout_anchor="@+id/include"
+        app:layout_anchorGravity="center_vertical|center_horizontal"
         android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

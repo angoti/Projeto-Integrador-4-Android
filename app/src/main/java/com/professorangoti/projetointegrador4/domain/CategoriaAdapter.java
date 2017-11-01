@@ -1,4 +1,4 @@
-package com.professorangoti.projetointegrador4;
+package com.professorangoti.projetointegrador4.domain;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.professorangoti.projetointegrador4.R;
 import com.professorangoti.projetointegrador4.domain.Produto;
 import com.squareup.picasso.Picasso;
 
