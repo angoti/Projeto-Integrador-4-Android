@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private Context contexto;
     private SwipeActionAdapter mAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,20 +116,25 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.op1) {
-            transparencia = 0.0f;
-            imagem.setAlpha(transparencia);
-            return true;
-        } else if (id == R.id.op2) {
-            transparencia = 0.1f;
-            imagem.setAlpha(transparencia);
-            return true;
-        } else if (id == R.id.op3) {
-            transparencia = 0.5f;
-            imagem.setAlpha(transparencia);
-            return true;
+        switch (id) {
+            case R.id.op1:
+                transparencia = 0.0f;
+                imagem.setAlpha(transparencia);
+                break;
+            case R.id.op2:
+                transparencia = 0.1f;
+                imagem.setAlpha(transparencia);
+                break;
+            case R.id.op3:
+                transparencia = 0.5f;
+                imagem.setAlpha(transparencia);
+                break;
+            case R.id.menuFoto:
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, 1);
+                break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -307,6 +313,8 @@ public class MainActivity extends AppCompatActivity
         return listaCategorias;
     }
 
-    public static void limpaListaCategorias() {listaCategorias=null;}
+    public static void limpaListaCategorias() {
+        listaCategorias = null;
+    }
 }
 

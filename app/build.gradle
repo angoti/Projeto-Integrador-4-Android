@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 'Google Inc.:Google APIs:23'
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.professorangoti.categorias"
-        minSdkVersion 23
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 21
+        targetSdkVersion 21
+        versionName '3'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        versionCode 3
     }
     buildTypes {
         release {
@@ -22,8 +22,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     //Retrofit
     //Picasso: http://square.github.io/picasso/
     //SwipeActionAdapter
@@ -37,4 +36,11 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.wdullaer:swipeactionadapter:2.0.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    compile 'com.google.firebase:firebase-storage:10.0.1'
+    compile 'com.google.firebase:firebase-auth:10.0.1'
 }
+
+
+
+
+apply plugin: 'com.google.gms.google-services'
