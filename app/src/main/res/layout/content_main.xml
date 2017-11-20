@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
-        android:src="@drawable/mandala"
+        android:src="@drawable/logo"
         android:id="@+id/imagem"/>
 
     <ListView

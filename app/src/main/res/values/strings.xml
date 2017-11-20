@@ -7,9 +7,7 @@
     <string name="action_settings">A implementar</string>
     <string name="todo">TODO</string>
     <string name="title_activity_categorias">Categorias</string>
-    <string name="texto1">Transparência 0%</string>
-    <string name="texto2">Transparência 10%</string>
-    <string name="texto3">Transparência 50%</string>
+    <string name="texto1">Sobre</string>
     <string name="title_activity_categoria_form">Nova Categoria</string>
     <string name="title_activity_produto_form">ProdutoForm</string>
 </resources>

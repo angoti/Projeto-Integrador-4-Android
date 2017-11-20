@@ -131,7 +131,7 @@ public class ProdutoForm extends AppCompatActivity {
                     final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                     final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                     ((ImageView) findViewById(R.id.imageViewImagem)).setImageBitmap(selectedImage);
-                    uploadImagemParaFirebase(imageUri);
+                    uploadImagemParaFirebase(reduzTamanhoImagem(imageUri));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -183,7 +183,7 @@ public class ProdutoForm extends AppCompatActivity {
 
     @Nullable
     private Uri reduzTamanhoImagem(Uri imagemUri) {
-        String newPath = getRealPathFromURI(getApplicationContext(), imagemUri);
+        //String newPath = getRealPathFromURI(getApplicationContext(), imagemUri);
         Bitmap bMap=null;
 
         try {
@@ -193,15 +193,19 @@ public class ProdutoForm extends AppCompatActivity {
         }
 
         Bitmap out = Bitmap.createScaledBitmap(bMap, 150, 150, false);
-        File imageStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyApp");
-        File resizedFile = new File(imageStorageDir, "resize.png");
+        //File imageStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyApp");
+        //File resizedFile = new File(imageStorageDir, "resize.png");
+        File resizedFile=null;
         try {
-            resizedFile.createNewFile();
+            String fileName = imagemUri.getLastPathSegment();
+            resizedFile = File.createTempFile(fileName, null, this.getCacheDir());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         OutputStream fOut = null;
         try {
+
             final FileOutputStream out1 = new FileOutputStream(resizedFile);
             fOut = new BufferedOutputStream(out1);
             out.compress(Bitmap.CompressFormat.PNG, 100, fOut);

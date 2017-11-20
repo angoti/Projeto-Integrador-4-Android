@@ -28,11 +28,12 @@ public class RetrofitService {
     private Retrofit criaRetrofit() {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-// set your desired log level
+        // set your desired log level
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        logging.setLevel(HttpLoggingInterceptor.Level.NONE);
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-// add your other interceptors …
-// add logging as last interceptor
+        // add your other interceptors …
+        // add logging as last interceptor
         httpClient.addInterceptor(logging);  // <-- this is the important line!
 
         Gson gson = new GsonBuilder()
