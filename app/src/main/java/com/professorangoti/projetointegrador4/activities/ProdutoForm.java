@@ -193,8 +193,6 @@ public class ProdutoForm extends AppCompatActivity {
         }
 
         Bitmap out = Bitmap.createScaledBitmap(bMap, 150, 150, false);
-        //File imageStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyApp");
-        //File resizedFile = new File(imageStorageDir, "resize.png");
         File resizedFile=null;
         try {
             String fileName = imagemUri.getLastPathSegment();
